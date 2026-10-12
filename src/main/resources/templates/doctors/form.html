@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'Edit Doctor Profile' : 'Add New Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctors')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar(${isEdit} ? 'Edit Doctor Information' : 'Add Medical Doctor')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="content-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2 th:text="${isEdit} ? 'Update Doctor Record' : 'Register New Doctor'">Doctor Form</h2>
+                    <a th:href="@{/doctors}" class="btn btn-sm btn-outline">&larr; Back to Doctors</a>
+                </div>
+                <div class="card-body">
+                    <form th:action="${isEdit} ? @{'/doctors/' + ${doctor.doctorId} + '/edit'} : @{/doctors/new}"
+                          th:object="${doctor}" method="post">
+
+                        <div class="form-grid">
+                            <!-- Full Name -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="fullName">Doctor Full Name <span class="required">*</span></label>
+                                <input type="text" id="fullName" th:field="*{fullName}" class="form-control" placeholder="e.g. Dr. Ananya Sharma" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                            </div>
+
+                            <!-- Specialization -->
+                            <div class="form-group">
+                                <label class="form-label" for="specialization">Medical Specialization <span class="required">*</span></label>
+                                <input type="text" id="specialization" th:field="*{specialization}" class="form-control" placeholder="e.g. Cardiology, Pediatrics, Neurology" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('specialization')}" th:errors="*{specialization}"></div>
+                            </div>
+
+                            <!-- Consultation Fee -->
+                            <div class="form-group">
+                                <label class="form-label" for="consultationFee">Consultation Fee (₹) <span class="required">*</span></label>
+                                <input type="number" step="0.50" min="0" id="consultationFee" th:field="*{consultationFee}" class="form-control" placeholder="0.00" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('consultationFee')}" th:errors="*{consultationFee}"></div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Contact Phone</label>
+                                <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. 9123456780">
+                                <div class="form-text-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label class="form-label" for="email">Official Email</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="e.g. doctor@hospital.com">
+                                <div class="form-text-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="form-group">
+                                <label class="form-label" for="isActive">Availability Status</label>
+                                <select id="isActive" th:field="*{isActive}" class="form-control">
+                                    <option value="Y">Active (Available for Appointments)</option>
+                                    <option value="N">Inactive (On Leave / Suspended)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" th:text="${isEdit} ? 'Update Doctor' : 'Save Doctor'">Submit</button>
+                            <a th:href="@{/doctors}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

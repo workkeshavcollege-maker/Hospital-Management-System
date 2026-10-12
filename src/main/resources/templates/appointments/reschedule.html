@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reschedule Appointment #' + ${appointment.appointmentId})}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('appointments')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Reschedule Appointment Slot')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="content-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2>Reschedule Appointment #<span th:text="${appointment.appointmentId}">1</span></h2>
+                    <a th:href="@{/appointments}" class="btn btn-sm btn-outline">&larr; Back to Appointments</a>
+                </div>
+                <div class="card-body">
+                    <!-- Current Booking Summary Box -->
+                    <div style="background-color: var(--gray-100); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 24px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+                            <div>
+                                <strong style="color: var(--gray-600);">Patient:</strong>
+                                <span style="font-weight: 600;" th:text="${appointment.patientName}">John Doe</span>
+                            </div>
+                            <div>
+                                <strong style="color: var(--gray-600);">Assigned Doctor:</strong>
+                                <span style="font-weight: 600;" th:text="'Dr. ' + ${appointment.doctorName}">Dr. Sharma</span>
+                            </div>
+                            <div>
+                                <strong style="color: var(--gray-600);">Current Time Slot:</strong>
+                                <span style="color: var(--danger); font-weight: 600;" th:text="${#temporals.format(appointment.appointmentDatetime, 'dd-MMM-yyyy HH:mm')}">15-Oct-2026 10:30</span>
+                            </div>
+                            <div>
+                                <strong style="color: var(--gray-600);">Current Status:</strong>
+                                <span class="badge badge-scheduled" th:text="${appointment.status}">SCHEDULED</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{'/appointments/' + ${appointment.appointmentId} + '/reschedule'}" method="post">
+                        <div class="form-grid">
+                            <!-- New Date and Time -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="newDateTime">Select New Consultation Date & Time <span class="required">*</span></label>
+                                <input type="datetime-local" id="newDateTime" name="newDateTime" class="form-control"
+                                       th:value="${#temporals.format(appointment.appointmentDatetime, 'yyyy-MM-dd''T''HH:mm')}" required>
+                                <small style="color: var(--gray-600); margin-top: 4px;">Subject to 30-minute slot availability for Dr. <span th:text="${appointment.doctorName}">Doctor</span>.</small>
+                            </div>
+
+                            <!-- Reason / Reschedule Note -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="reason">Updated Reason / Reschedule Note</label>
+                                <textarea id="reason" name="reason" class="form-control" rows="3" th:text="${appointment.reason}" placeholder="Reason for rescheduling..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Update Appointment Time</button>
+                            <a th:href="@{/appointments}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

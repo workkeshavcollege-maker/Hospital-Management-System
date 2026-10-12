@@ -1,0 +1,8 @@
+.env
+.DS_Store
+
+# Maven build output
+target/
+
+# Local Maven dependency cache
+.maven-repository/

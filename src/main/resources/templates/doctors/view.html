@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Doctor Schedule: Dr. ' + ${doctor.fullName})}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctors')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Doctor Consultation Profile')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Doctor Profile Summary Card -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div>
+                        <h2 th:text="'Dr. ' + ${doctor.fullName}">Dr. Name</h2>
+                        <span style="font-size: 13px; color: var(--gray-600);" th:text="'Specialist ID: #' + ${doctor.doctorId}">#1</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a th:if="${doctor.isActive == 'Y'}" th:href="@{'/appointments/book?doctorId=' + ${doctor.doctorId}}" class="btn btn-sm btn-secondary">&#10010; Book Appointment</a>
+                        <a th:href="@{'/doctors/' + ${doctor.doctorId} + '/edit'}" sec:authorize="hasRole('ADMIN')" class="btn btn-sm btn-outline">Edit Details</a>
+                        <a th:href="@{/doctors}" class="btn btn-sm btn-outline">&larr; Back to Directory</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Medical Specialization</span>
+                            <p style="font-size: 16px; font-weight: 600; color: var(--dark);" th:text="${doctor.specialization}">Cardiology</p>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Consultation Fee</span>
+                            <p style="font-size: 16px; font-weight: 600; color: var(--success);" th:text="'₹' + ${#numbers.formatDecimal(doctor.consultationFee, 1, 2)}">₹750.00</p>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Status</span>
+                            <p style="margin-top: 4px;">
+                                <span class="badge" 
+                                      th:classappend="${doctor.isActive == 'Y'} ? 'badge-active' : 'badge-inactive'"
+                                      th:text="${doctor.isActive == 'Y'} ? 'ACTIVE & ACCEPTING' : 'INACTIVE'">
+                                    ACTIVE
+                                </span>
+                            </p>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Phone Number</span>
+                            <p style="font-size: 15px; color: var(--dark);" th:text="${doctor.phone != null ? doctor.phone : 'Not provided'}">9123456780</p>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Official Email</span>
+                            <p style="font-size: 15px; color: var(--dark);" th:text="${doctor.email != null ? doctor.email : 'Not provided'}">doc@hospital.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Consultation Schedule -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Scheduled Patient Consultations</h2>
+                    <span style="font-size: 13px; color: var(--gray-600);" th:text="${#lists.size(appointments)} + ' Total Consultations'">0 Appointments</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Patient Name</th>
+                                    <th>Patient Phone</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(appointments)}">
+                                    <td colspan="7" style="text-align: center; color: var(--gray-400); padding: 30px;">
+                                        No appointments scheduled with this doctor.
+                                    </td>
+                                </tr>
+                                <tr th:each="appt : ${appointments}">
+                                    <td th:text="'#' + ${appt.appointmentId}" style="font-weight: 600;">#1</td>
+                                    <td th:text="${#temporals.format(appt.appointmentDatetime, 'dd-MMM-yyyy HH:mm')}">15-Oct-2026 10:30</td>
+                                    <td>
+                                        <a th:href="@{'/patients/' + ${appt.patientId}}" th:text="${appt.patientName}" style="font-weight: 600; color: var(--primary); text-decoration: none;">Patient Name</a>
+                                    </td>
+                                    <td th:text="${appt.patientPhone}">Phone</td>
+                                    <td th:text="${appt.reason != null ? appt.reason : '-'}">Reason</td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${appt.status == 'SCHEDULED'} ? 'badge-scheduled' : (${appt.status == 'COMPLETED'} ? 'badge-completed' : 'badge-cancelled')"
+                                              th:text="${appt.status}">
+                                            SCHEDULED
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <a th:href="@{'/appointments/' + ${appt.appointmentId} + '/reschedule'}" class="btn btn-sm btn-outline">Reschedule</a>
+                                            <form th:if="${appt.status == 'SCHEDULED'}" th:action="@{'/appointments/' + ${appt.appointmentId} + '/status'}" method="post" style="display:inline;">
+                                                <input type="hidden" name="status" value="COMPLETED">
+                                                <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

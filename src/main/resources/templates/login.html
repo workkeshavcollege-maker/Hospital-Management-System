@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hospital Management System</title>
+    <link rel="stylesheet" th:href="@{/css/hospital.css}">
+</head>
+<body class="login-body">
+
+<div class="login-card">
+    <div class="login-header">
+        <div class="login-brand-icon">+</div>
+        <h1>Apex Care Hospital</h1>
+        <p>Staff & Administrative Management Portal</p>
+    </div>
+
+    <!-- Alert Notices -->
+    <div style="padding: 0 32px;" th:if="${errorMessage != null or successMessage != null or infoMessage != null}">
+        <div th:if="${errorMessage != null}" class="alert alert-danger" style="margin-bottom: 16px;">
+            <span th:text="${errorMessage}">Invalid username or password.</span>
+        </div>
+        <div th:if="${successMessage != null}" class="alert alert-success" style="margin-bottom: 16px;">
+            <span th:text="${successMessage}">Logged out successfully.</span>
+        </div>
+        <div th:if="${infoMessage != null}" class="alert alert-info" style="margin-bottom: 16px;">
+            <span th:text="${infoMessage}">Session notification.</span>
+        </div>
+    </div>
+
+    <form class="login-form" th:action="@{/login}" method="post">
+        <!-- CSRF Token automatically injected by Thymeleaf with th:action -->
+        
+        <div class="form-group" style="margin-bottom: 18px;">
+            <label class="form-label" for="username">Username <span class="required">*</span></label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Enter your staff username" required autofocus>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 22px;">
+            <label class="form-label" for="password">Password <span class="required">*</span></label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary login-btn">Sign In to Dashboard &rarr;</button>
+    </form>
+
+    <div class="login-footer-info">
+        College PAT 4 Practical Examination &bull; Oracle FreeSQL JDBC System
+    </div>
+</div>
+
+</body>
+</html>

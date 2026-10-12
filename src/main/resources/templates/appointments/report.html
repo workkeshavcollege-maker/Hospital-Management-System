@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Daily Appointments Clinical Report')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('report')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Daily Appointment & Revenue Report')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Date Selector & Action Bar -->
+            <div class="search-filter-box">
+                <form th:action="@{/appointments/report}" method="get" style="display: flex; gap: 12px; align-items: center; flex: 1; flex-wrap: wrap;">
+                    <label style="font-weight: 600; font-size: 14px;" for="reportDate">Report Date:</label>
+                    <input type="date" id="reportDate" name="reportDate" th:value="${reportDate}" class="form-control" style="max-width: 180px;" required>
+                    <button type="submit" class="btn btn-primary btn-sm">&#128269; Generate Report</button>
+                    <a th:href="@{/appointments/report}" class="btn btn-outline btn-sm">Today</a>
+                </form>
+                <div>
+                    <button onclick="window.print()" class="btn btn-outline">&#128438; Print Report</button>
+                </div>
+            </div>
+
+            <!-- Daily Summary Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Total Consultations</span>
+                        <h3 th:text="${totalAppointments}">0</h3>
+                    </div>
+                    <div class="stat-icon primary">&#9776;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Completed Visits</span>
+                        <h3 th:text="${completedCount}">0</h3>
+                    </div>
+                    <div class="stat-icon success">&#10003;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Scheduled Pending</span>
+                        <h3 th:text="${scheduledCount}">0</h3>
+                    </div>
+                    <div class="stat-icon warning">&#9200;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Day's Completed Revenue</span>
+                        <h3 style="color: var(--success);" th:text="'₹' + ${#numbers.formatDecimal(totalRevenue, 1, 2)}">₹0.00</h3>
+                    </div>
+                    <div class="stat-icon teal">&#8377;</div>
+                </div>
+            </div>
+
+            <!-- Daily Report Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Consultation Schedule for <span style="color: var(--primary);" th:text="${#temporals.format(reportDate, 'dd-MMMM-yyyy')}">Today</span></h2>
+                    <span style="font-size: 13px; color: var(--gray-600);" th:text="${#lists.size(appointments)} + ' Appointments Recorded'">0 Records</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Time Slot</th>
+                                    <th>Patient Name</th>
+                                    <th>Patient Contact</th>
+                                    <th>Doctor Name</th>
+                                    <th>Specialization</th>
+                                    <th>Consultation Fee</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(appointments)}">
+                                    <td colspan="8" style="text-align: center; color: var(--gray-400); padding: 30px;">
+                                        No appointments scheduled or recorded for the selected date.
+                                    </td>
+                                </tr>
+                                <tr th:each="appt : ${appointments}">
+                                    <td th:text="'#' + ${appt.appointmentId}" style="font-weight: 600;">#1</td>
+                                    <td style="font-weight: 600;" th:text="${#temporals.format(appt.appointmentDatetime, 'HH:mm')}">10:30</td>
+                                    <td th:text="${appt.patientName}">John Doe</td>
+                                    <td th:text="${appt.patientPhone}">9876543210</td>
+                                    <td th:text="'Dr. ' + ${appt.doctorName}">Dr. Sharma</td>
+                                    <td th:text="${appt.doctorSpecialization}">Cardiology</td>
+                                    <td th:text="'₹' + ${#numbers.formatDecimal(appt.doctorFee != null ? appt.doctorFee : 0, 1, 2)}">₹750.00</td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${appt.status == 'SCHEDULED'} ? 'badge-scheduled' : (${appt.status == 'COMPLETED'} ? 'badge-completed' : 'badge-cancelled')"
+                                              th:text="${appt.status}">
+                                            SCHEDULED
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

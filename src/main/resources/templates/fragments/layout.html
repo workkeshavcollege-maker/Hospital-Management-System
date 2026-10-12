@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - Hospital Management System' : 'Hospital Management System'}">Hospital Management System</title>
+    <link rel="stylesheet" th:href="@{/css/hospital.css}">
+</head>
+<body>
+
+<!-- Sidebar Fragment -->
+<aside th:fragment="sidebar(activeNav)" class="app-sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">+</div>
+        <div class="brand-text">
+            <h1>Apex Care</h1>
+            <span>Hospital System</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Modules</div>
+        <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activeNav == 'dashboard'} ? ' active' : ''">
+            <span class="icon">&#9632;</span> Dashboard
+        </a>
+        <a th:href="@{/patients}" class="nav-item" th:classappend="${activeNav == 'patients'} ? ' active' : ''">
+            <span class="icon">&#9787;</span> Patients
+        </a>
+        <a th:href="@{/doctors}" class="nav-item" th:classappend="${activeNav == 'doctors'} ? ' active' : ''">
+            <span class="icon">&#9778;</span> Doctors
+        </a>
+        <a th:href="@{/appointments}" class="nav-item" th:classappend="${activeNav == 'appointments'} ? ' active' : ''">
+            <span class="icon">&#9776;</span> Appointments
+        </a>
+
+        <div class="nav-section-title">Operations</div>
+        <a th:href="@{/appointments/book}" class="nav-item" th:classappend="${activeNav == 'book'} ? ' active' : ''">
+            <span class="icon">&#10010;</span> Book Slot
+        </a>
+        <a th:href="@{/appointments/report}" class="nav-item" th:classappend="${activeNav == 'report'} ? ' active' : ''">
+            <span class="icon">&#9998;</span> Daily Report
+        </a>
+
+        <div class="nav-section-title" sec:authorize="hasRole('ADMIN')">Administration</div>
+        <a th:href="@{/users}" class="nav-item" th:classappend="${activeNav == 'users'} ? ' active' : ''" sec:authorize="hasRole('ADMIN')">
+            <span class="icon">&#9881;</span> User Management
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-badge-sidebar" sec:authorize="isAuthenticated()">
+            <div class="user-avatar"
+                 th:text="${#authentication != null and #authentication.name != null and !#authentication.name.isEmpty() ? #strings.toUpperCase(#strings.substring(#authentication.name, 0, 1)) : 'U'}">U</div>
+            <div class="user-info-text">
+                <div class="user-info-name">
+                    <span sec:authentication="name">Username</span>
+                </div>
+                <div class="user-info-role"
+                     th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities.iterator().next().authority, 'ROLE_', '') : 'STAFF'}">ROLE</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Topbar Fragment -->
+<header th:fragment="topbar(pageTitle)" class="app-topbar">
+    <div class="topbar-title" th:text="${pageTitle}">Dashboard</div>
+    <div class="topbar-actions">
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="btn-logout">&#x21aa; Logout</button>
+        </form>
+    </div>
+</header>
+
+<!-- Alert Messages Fragment -->
+<div th:fragment="alerts">
+    <div th:if="${successMessage != null}" class="alert alert-success">
+        <span>&#10004;</span>
+        <span th:text="${successMessage}">Operation completed successfully.</span>
+    </div>
+    <div th:if="${errorMessage != null}" class="alert alert-danger">
+        <span>&#9888;</span>
+        <span th:text="${errorMessage}">An error occurred.</span>
+    </div>
+    <div th:if="${infoMessage != null}" class="alert alert-info">
+        <span>&#9432;</span>
+        <span th:text="${infoMessage}">Information notice.</span>
+    </div>
+</div>
+
+<!-- Scripts Fragment -->
+<footer th:fragment="scripts">
+    <script th:src="@{/js/hospital.js}"></script>
+</footer>
+
+</body>
+</html>

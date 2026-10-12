@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Executive Dashboard')}"></head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
+
+    <!-- Main Container -->
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Hospital Overview Dashboard')}"></header>
+
+        <main class="page-content">
+            <!-- Flash alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Database connection warning banner if applicable -->
+            <div th:if="${dbErrorMessage != null}" class="alert alert-danger">
+                <span>&#9888;</span>
+                <span th:text="${dbErrorMessage}">Database connection alert</span>
+            </div>
+
+            <!-- Summary Statistics Cards (Direct Oracle SQL Aggregate Metrics) -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Total Patients</span>
+                        <h3 th:text="${stats.totalPatients}">0</h3>
+                    </div>
+                    <div class="stat-icon primary">&#9787;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Active Doctors</span>
+                        <h3 th:text="${stats.totalActiveDoctors}">0</h3>
+                    </div>
+                    <div class="stat-icon success">&#9778;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Total Appointments</span>
+                        <h3 th:text="${stats.totalAppointments}">0</h3>
+                    </div>
+                    <div class="stat-icon warning">&#9776;</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span>Scheduled Slots</span>
+                        <h3 th:text="${stats.scheduledAppointments}">0</h3>
+                    </div>
+                    <div class="stat-icon teal">&#10003;</div>
+                </div>
+            </div>
+
+            <!-- Quick Navigation & Action Shortcuts -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Quick Operations</h2>
+                </div>
+                <div class="card-body" style="display: flex; gap: 14px; flex-wrap: wrap;">
+                    <a th:href="@{/appointments/book}" class="btn btn-secondary">&#10010; Book New Appointment</a>
+                    <a th:href="@{/patients/new}" class="btn btn-primary">&#9787; Register New Patient</a>
+                    <a th:href="@{/doctors/new}" sec:authorize="hasRole('ADMIN')" class="btn btn-outline">&#9778; Add New Doctor</a>
+                    <a th:href="@{/appointments/report}" class="btn btn-outline">&#9998; View Daily Report</a>
+                    <a th:href="@{/patients}" class="btn btn-outline">&#128269; Search Patients</a>
+                </div>
+            </div>
+
+            <!-- Upcoming Appointments Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Upcoming Appointments Schedule</h2>
+                    <a th:href="@{/appointments}" class="btn btn-sm btn-outline">View All &rarr;</a>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Patient Name</th>
+                                    <th>Patient Contact</th>
+                                    <th>Doctor</th>
+                                    <th>Specialization</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(upcomingAppointments)}">
+                                    <td colspan="8" style="text-align: center; color: var(--gray-400); padding: 30px;">
+                                        No upcoming appointments found in the system.
+                                    </td>
+                                </tr>
+                                <tr th:each="appt : ${upcomingAppointments}">
+                                    <td th:text="'#' + ${appt.appointmentId}">#1</td>
+                                    <td th:text="${#temporals.format(appt.appointmentDatetime, 'dd-MMM-yyyy HH:mm')}">15-Oct-2026 10:30</td>
+                                    <td>
+                                        <a th:href="@{'/patients/' + ${appt.patientId}}" th:text="${appt.patientName}" style="font-weight: 600; color: var(--primary); text-decoration: none;">John Doe</a>
+                                    </td>
+                                    <td th:text="${appt.patientPhone}">9876543210</td>
+                                    <td th:text="'Dr. ' + ${appt.doctorName}">Dr. Sharma</td>
+                                    <td th:text="${appt.doctorSpecialization}">Cardiology</td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${appt.status == 'SCHEDULED'} ? 'badge-scheduled' : (${appt.status == 'COMPLETED'} ? 'badge-completed' : 'badge-cancelled')"
+                                              th:text="${appt.status}">
+                                            SCHEDULED
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{'/appointments/' + ${appt.appointmentId} + '/reschedule'}" class="btn btn-sm btn-outline">Reschedule</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

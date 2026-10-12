@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'Edit Patient' : 'Register New Patient')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar(${isEdit} ? 'Edit Patient Profile' : 'Register New Patient')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="content-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2 th:text="${isEdit} ? 'Update Patient Information' : 'Patient Registration Form'">Patient Form</h2>
+                    <a th:href="@{/patients}" class="btn btn-sm btn-outline">&larr; Back to Patients</a>
+                </div>
+                <div class="card-body">
+                    <form th:action="${isEdit} ? @{'/patients/' + ${patient.patientId} + '/edit'} : @{/patients/new}"
+                          th:object="${patient}" method="post">
+
+                        <div class="form-grid">
+                            <!-- Full Name -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="fullName">Full Legal Name <span class="required">*</span></label>
+                                <input type="text" id="fullName" th:field="*{fullName}" class="form-control" placeholder="e.g. Eleanor Vance" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Phone Number <span class="required">*</span></label>
+                                <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. 9876543210" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email Address</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="e.g. patient@example.com">
+                                <div class="form-text-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div class="form-group">
+                                <label class="form-label" for="dateOfBirth">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" class="form-control">
+                                <div class="form-text-error" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></div>
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="form-group">
+                                <label class="form-label" for="gender">Gender</label>
+                                <select id="gender" th:field="*{gender}" class="form-control">
+                                    <option value="">-- Select Gender --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Undisclosed">Prefer not to say</option>
+                                </select>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="address">Residential Address</label>
+                                <textarea id="address" th:field="*{address}" class="form-control" rows="3" placeholder="Full residential address, city, pin code"></textarea>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" th:text="${isEdit} ? 'Save Changes' : 'Register Patient'">Submit</button>
+                            <a th:href="@{/patients}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

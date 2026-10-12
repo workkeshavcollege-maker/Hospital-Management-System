@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Notice - Hospital Management System</title>
+    <link rel="stylesheet" th:href="@{/css/hospital.css}">
+</head>
+<body class="login-body">
+
+<div class="login-card" style="max-width: 540px;">
+    <div class="login-header">
+        <div class="login-brand-icon" style="background-color: var(--danger);">&#9888;</div>
+        <h1 th:text="${errorCode != null ? errorCode : 'Application Notice'}">Notice</h1>
+        <p style="color: var(--gray-800); font-size: 15px; margin-top: 12px; line-height: 1.6;" 
+           th:text="${errorMessage != null ? errorMessage : 'An unexpected condition was encountered.'}">
+            System Notice
+        </p>
+    </div>
+
+    <div style="padding: 0 32px 32px; text-align: center;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+            <a th:href="@{/dashboard}" class="btn btn-primary">&larr; Return to Dashboard</a>
+            <a href="javascript:history.back()" class="btn btn-outline">Go Back</a>
+        </div>
+    </div>
+
+    <div class="login-footer-info">
+        College PAT 4 Practical Examination &bull; Secure Error Handling
+    </div>
+</div>
+
+</body>
+</html>

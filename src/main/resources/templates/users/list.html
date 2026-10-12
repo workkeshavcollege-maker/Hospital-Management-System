@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('System User Accounts')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('users')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Staff & System User Accounts')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Action Bar -->
+            <div class="search-filter-box" style="justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 15px; color: var(--gray-800);">APP_USERS Authentication Table</h3>
+                    <p style="font-size: 13px; color: var(--gray-600);">Role-based access control with BCrypt encrypted credentials.</p>
+                </div>
+                <div>
+                    <a th:href="@{/users/new}" class="btn btn-secondary">&#10010; Provision New User</a>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Configured User Credentials</h2>
+                    <span style="font-size: 13px; color: var(--gray-600);" th:text="${#lists.size(users)} + ' Account(s)'">0 Users</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Full Legal Name</th>
+                                    <th>Role Authority</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Manage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td th:text="'#' + ${user.userId}" style="font-weight: 600;">#1</td>
+                                    <td style="font-weight: 600; color: var(--primary);" th:text="${user.username}">admin</td>
+                                    <td th:text="${user.fullName}">Administrator</td>
+                                    <td>
+                                        <span class="badge badge-role" th:text="${user.userRole}">ADMIN</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${user.isActive == 'Y'} ? 'badge-active' : 'badge-inactive'"
+                                              th:text="${user.isActive == 'Y'} ? 'ACTIVE' : 'DEACTIVATED'">
+                                            ACTIVE
+                                        </span>
+                                    </td>
+                                    <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd-MMM-yyyy HH:mm') : '-'}">Date</td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <form th:action="@{'/users/' + ${user.userId} + '/toggle-status'}" method="post" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm"
+                                                        th:classappend="${user.isActive == 'Y'} ? 'btn-outline' : 'btn-success'"
+                                                        th:text="${user.isActive == 'Y'} ? 'Deactivate' : 'Activate'"
+                                                        th:attr="data-confirm='Change access status for user ' + ${user.username} + '?'">
+                                                    Toggle
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

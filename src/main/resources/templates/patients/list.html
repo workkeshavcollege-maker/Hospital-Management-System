@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Patients Directory')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Patient Management Directory')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Search and Action Bar -->
+            <div class="search-filter-box">
+                <form th:action="@{/patients}" method="get" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                    <input type="text" name="term" th:value="${term}" class="form-control" style="max-width: 380px;"
+                           placeholder="Search by Patient ID, Full Name, Phone or Email...">
+                    <button type="submit" class="btn btn-primary btn-sm">&#128269; Search</button>
+                    <a th:if="${term != null and !term.isEmpty()}" th:href="@{/patients}" class="btn btn-outline btn-sm">Clear Filter</a>
+                </form>
+                <div>
+                    <a th:href="@{/patients/new}" class="btn btn-secondary">&#10010; Register New Patient</a>
+                </div>
+            </div>
+
+            <!-- Patients Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Registered Patients</h2>
+                    <span style="font-size: 13px; color: var(--gray-600);" th:text="${#lists.size(patients)} + ' Record(s) Found'">0 Records</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Full Name</th>
+                                    <th>Date of Birth</th>
+                                    <th>Gender</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(patients)}">
+                                    <td colspan="8" style="text-align: center; color: var(--gray-400); padding: 30px;">
+                                        No patient records found matching the query.
+                                    </td>
+                                </tr>
+                                <tr th:each="pat : ${patients}">
+                                    <td th:text="'#' + ${pat.patientId}" style="font-weight: 600;">#1</td>
+                                    <td>
+                                        <a th:href="@{'/patients/' + ${pat.patientId}}" th:text="${pat.fullName}" style="font-weight: 600; color: var(--primary); text-decoration: none;">John Doe</a>
+                                    </td>
+                                    <td th:text="${pat.dateOfBirth != null ? #temporals.format(pat.dateOfBirth, 'dd-MMM-yyyy') : '-'}">15-Jun-1990</td>
+                                    <td th:text="${pat.gender != null ? pat.gender : '-'}">Male</td>
+                                    <td th:text="${pat.phone}">9876543210</td>
+                                    <td th:text="${pat.email != null ? pat.email : '-'}">john@example.com</td>
+                                    <td th:text="${pat.address != null ? pat.address : '-'}">City, State</td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <a th:href="@{'/patients/' + ${pat.patientId}}" class="btn btn-sm btn-outline">View</a>
+                                            <a th:href="@{'/patients/' + ${pat.patientId} + '/edit'}" class="btn btn-sm btn-outline">Edit</a>
+                                            <form th:action="@{'/patients/' + ${pat.patientId} + '/delete'}" method="post" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                                        data-confirm="Are you sure you want to delete this patient record? Deletion will be rejected if associated appointments exist.">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

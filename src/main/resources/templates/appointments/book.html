@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Book Appointment Slot')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('book')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Appointment Booking & Scheduling')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="content-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2>Book Patient Consultation Slot</h2>
+                    <a th:href="@{/appointments}" class="btn btn-sm btn-outline">&larr; Back to Appointments</a>
+                </div>
+                <div class="card-body">
+                    <!-- Informational notice regarding 30-min overlap rule -->
+                    <div class="alert alert-info" style="margin-bottom: 24px;">
+                        <span>&#9432;</span>
+                        <span><strong>Scheduling Rule:</strong> Appointments are scheduled in 30-minute consultation blocks. The system automatically enforces a 30-minute buffer and rejects overlapping bookings for the same doctor using database concurrency locks.</span>
+                    </div>
+
+                    <form th:action="@{/appointments/book}" th:object="${appointment}" method="post">
+                        <div class="form-grid">
+
+                            <!-- Patient Selection Dropdown -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="patientId">Select Registered Patient <span class="required">*</span></label>
+                                <select id="patientId" th:field="*{patientId}" class="form-control" required>
+                                    <option value="">-- Choose Patient from Database --</option>
+                                    <option th:each="p : ${patients}" 
+                                            th:value="${p.patientId}" 
+                                            th:text="${p.fullName} + ' (ID #' + ${p.patientId} + ' | Phone: ' + ${p.phone} + ')'">
+                                        Patient Name
+                                    </option>
+                                </select>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('patientId')}" th:errors="*{patientId}"></div>
+                                <div style="margin-top: 4px; font-size: 12px; color: var(--gray-600);">
+                                    Patient not registered yet? <a th:href="@{/patients/new}" target="_blank" style="color: var(--secondary);">Register patient first &rarr;</a>
+                                </div>
+                            </div>
+
+                            <!-- Doctor Selection Dropdown (Active Doctors Only) -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="doctorId">Select Active Doctor <span class="required">*</span></label>
+                                <select id="doctorId" th:field="*{doctorId}" class="form-control" required>
+                                    <option value="">-- Choose Available Specialist --</option>
+                                    <option th:each="doc : ${activeDoctors}" 
+                                            th:value="${doc.doctorId}" 
+                                            th:text="'Dr. ' + ${doc.fullName} + ' — ' + ${doc.specialization} + ' (Fee: ₹' + ${#numbers.formatDecimal(doc.consultationFee, 1, 2)} + ')'">
+                                        Doctor Name
+                                    </option>
+                                </select>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}"></div>
+                            </div>
+
+                            <!-- Appointment Date and Time -->
+                            <div class="form-group">
+                                <label class="form-label" for="appointmentDatetimeInput">Consultation Date & Time <span class="required">*</span></label>
+                                <input type="datetime-local" id="appointmentDatetimeInput" th:field="*{appointmentDatetime}" class="form-control" required>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('appointmentDatetime')}" th:errors="*{appointmentDatetime}"></div>
+                            </div>
+
+                            <!-- Initial Status -->
+                            <div class="form-group">
+                                <label class="form-label" for="status">Initial Booking Status</label>
+                                <select id="status" th:field="*{status}" class="form-control">
+                                    <option value="SCHEDULED">SCHEDULED</option>
+                                </select>
+                            </div>
+
+                            <!-- Reason for Appointment -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="reason">Consultation Reason / Clinical Symptoms</label>
+                                <textarea id="reason" th:field="*{reason}" class="form-control" rows="3" placeholder="e.g. Follow-up ECG review, acute headache, seasonal flu checkup..."></textarea>
+                                <div class="form-text-error" th:if="${#fields.hasErrors('reason')}" th:errors="*{reason}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-secondary">&#10003; Confirm & Book Appointment</button>
+                            <a th:href="@{/appointments}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

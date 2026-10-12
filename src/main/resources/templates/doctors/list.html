@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Doctors Medical Staff')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctors')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Doctor & Specialist Directory')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Search and Filter Controls -->
+            <div class="search-filter-box">
+                <form th:action="@{/doctors}" method="get" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                    <input type="text" name="term" th:value="${term}" class="form-control" style="max-width: 320px;"
+                           placeholder="Search doctor by name, specialization, phone...">
+
+                    <select name="status" class="form-control" style="max-width: 180px;">
+                        <option value="ALL" th:selected="${status == 'ALL'}">All Statuses</option>
+                        <option value="Y" th:selected="${status == 'Y'}">Active Only</option>
+                        <option value="N" th:selected="${status == 'N'}">Inactive Only</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary btn-sm">&#128269; Filter</button>
+                    <a th:href="@{/doctors}" class="btn btn-outline btn-sm">Reset</a>
+                </form>
+                <div sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/doctors/new}" class="btn btn-secondary">&#10010; Add New Doctor</a>
+                </div>
+            </div>
+
+            <!-- Doctors Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Medical Specialists & Physicians</h2>
+                    <span style="font-size: 13px; color: var(--gray-600);" th:text="${#lists.size(doctors)} + ' Doctor(s) Listed'">0 Doctors</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Doctor Name</th>
+                                    <th>Specialization</th>
+                                    <th>Consultation Fee</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(doctors)}">
+                                    <td colspan="8" style="text-align: center; color: var(--gray-400); padding: 30px;">
+                                        No doctors found matching the search criteria.
+                                    </td>
+                                </tr>
+                                <tr th:each="doc : ${doctors}">
+                                    <td th:text="'#' + ${doc.doctorId}" style="font-weight: 600;">#1</td>
+                                    <td>
+                                        <a th:href="@{'/doctors/' + ${doc.doctorId}}" th:text="'Dr. ' + ${doc.fullName}" style="font-weight: 600; color: var(--primary); text-decoration: none;">Dr. Sharma</a>
+                                    </td>
+                                    <td th:text="${doc.specialization}">Cardiology</td>
+                                    <td style="font-weight: 600;" th:text="'₹' + ${#numbers.formatDecimal(doc.consultationFee, 1, 2)}">₹750.00</td>
+                                    <td th:text="${doc.phone != null ? doc.phone : '-'}">9123456780</td>
+                                    <td th:text="${doc.email != null ? doc.email : '-'}">doctor@hospital.com</td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${doc.isActive == 'Y'} ? 'badge-active' : 'badge-inactive'"
+                                              th:text="${doc.isActive == 'Y'} ? 'ACTIVE' : 'INACTIVE'">
+                                            ACTIVE
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <a th:href="@{'/doctors/' + ${doc.doctorId}}" class="btn btn-sm btn-outline">Schedule</a>
+                                            <a th:href="@{'/doctors/' + ${doc.doctorId} + '/edit'}" sec:authorize="hasRole('ADMIN')" class="btn btn-sm btn-outline">Edit</a>
+                                            <form th:action="@{'/doctors/' + ${doc.doctorId} + '/toggle-status'}" method="post" sec:authorize="hasRole('ADMIN')" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm"
+                                                        th:classappend="${doc.isActive == 'Y'} ? 'btn-outline' : 'btn-success'"
+                                                        th:text="${doc.isActive == 'Y'} ? 'Deactivate' : 'Activate'"
+                                                        th:attr="data-confirm='Are you sure you want to change activation status for Dr. ' + ${doc.fullName} + '?'">
+                                                    Toggle
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>

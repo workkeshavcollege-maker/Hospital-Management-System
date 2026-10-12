@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Provision New Staff User')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('users')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: topbar('Provision System User Account')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="content-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2>Create User Account</h2>
+                    <a th:href="@{/users}" class="btn btn-sm btn-outline">&larr; Back to Users</a>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/users/new}" method="post">
+                        <div class="form-grid">
+                            <!-- Username -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="username">Username <span class="required">*</span></label>
+                                <input type="text" id="username" name="username" th:value="${username}" class="form-control" placeholder="e.g. jdoe_staff" required>
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="form-group col-full">
+                                <label class="form-label" for="fullName">Full Staff Name <span class="required">*</span></label>
+                                <input type="text" id="fullName" name="fullName" th:value="${fullName}" class="form-control" placeholder="e.g. John Doe" required>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="form-group">
+                                <label class="form-label" for="password">Password <span class="required">*</span></label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="At least 6 characters" minlength="6" required>
+                                <small style="color: var(--gray-600); margin-top: 4px;">Password will be encrypted using BCrypt.</small>
+                            </div>
+
+                            <!-- User Role -->
+                            <div class="form-group">
+                                <label class="form-label" for="role">Assigned Role Authority <span class="required">*</span></label>
+                                <select id="role" name="role" class="form-control" required>
+                                    <option value="RECEPTIONIST" th:selected="${role == 'RECEPTIONIST'}">RECEPTIONIST (Frontdesk & Appointments)</option>
+                                    <option value="DOCTOR" th:selected="${role == 'DOCTOR'}">DOCTOR (Physician & Consultations)</option>
+                                    <option value="ADMIN" th:selected="${role == 'ADMIN'}">ADMIN (Full System Administrator)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create User Account</button>
+                            <a th:href="@{/users}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: scripts}"></footer>
+</body>
+</html>
